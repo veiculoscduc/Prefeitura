@@ -174,6 +174,7 @@ export async function svcCreateUser(user: User): Promise<void> {
     const { error } = await supabase.from('users').insert(mapUserToDb(user));
     if (error) {
       console.error('Supabase user create error:', error);
+      throw new Error(`Erro no Supabase: ${error.message}. Verifique se a tabela 'users' foi devidamente criada executando o script SQL consolidado.`);
     }
   }
   const exists = db.users.some(u => u.id === user.id);
@@ -196,6 +197,7 @@ export async function svcUpdateUser(id: string, updates: Partial<User>): Promise
     const { error } = await supabase.from('users').update(dbUpdates).eq('id', id);
     if (error) {
       console.error('Supabase user update error:', error);
+      throw new Error(`Erro no Supabase ao atualizar usuário: ${error.message}`);
     }
   }
   const idx = db.users.findIndex(u => u.id === id);
@@ -222,6 +224,7 @@ export async function svcCreateVehicle(vehicle: Vehicle): Promise<void> {
     const { error } = await supabase.from('vehicles').insert(mapVehicleToDb(vehicle));
     if (error) {
       console.error('Supabase vehicle insert error:', error);
+      throw new Error(`Erro no Supabase: ${error.message}. Verifique se a tabela 'vehicles' foi devidamente criada executando o script SQL consolidado.`);
     }
   }
   const exists = db.vehicles.some(v => v.id === vehicle.id);
@@ -236,6 +239,7 @@ export async function svcDeleteVehicle(id: string): Promise<void> {
     const { error } = await supabase.from('vehicles').delete().eq('id', id);
     if (error) {
       console.error('Supabase vehicle delete error:', error);
+      throw new Error(`Erro no Supabase ao deletar veículo: ${error.message}`);
     }
   }
   db.vehicles = db.vehicles.filter(v => v.id !== id);
@@ -259,6 +263,7 @@ export async function svcCreateRequest(req: ScheduleRequest): Promise<void> {
     const { error } = await supabase.from('requests').insert(mapRequestToDb(req));
     if (error) {
       console.error('Supabase request insert error:', error);
+      throw new Error(`Erro no Supabase: ${error.message}. Verifique se a tabela 'requests' foi criada executando o script SQL consolidado.`);
     }
   }
   const exists = db.requests.some(r => r.id === req.id);
@@ -282,6 +287,7 @@ export async function svcUpdateRequest(id: string, updates: Partial<ScheduleRequ
     const { error } = await supabase.from('requests').update(dbUpdates).eq('id', id);
     if (error) {
       console.error('Supabase request update error:', error);
+      throw new Error(`Erro no Supabase ao atualizar solicitação: ${error.message}`);
     }
   }
   const idx = db.requests.findIndex(r => r.id === id);
@@ -308,6 +314,7 @@ export async function svcCreateBlock(block: AgendaBlock): Promise<void> {
     const { error } = await supabase.from('blocks').insert(mapBlockToDb(block));
     if (error) {
       console.error('Supabase block insert error:', error);
+      throw new Error(`Erro no Supabase: ${error.message}. Verifique se a tabela 'blocks' foi criada executando o script SQL consolidado.`);
     }
   }
   const exists = db.blocks.some(b => b.id === block.id);
@@ -322,6 +329,7 @@ export async function svcDeleteBlock(id: string): Promise<void> {
     const { error } = await supabase.from('blocks').delete().eq('id', id);
     if (error) {
       console.error('Supabase block delete error:', error);
+      throw new Error(`Erro no Supabase ao deletar bloqueio: ${error.message}`);
     }
   }
   db.blocks = db.blocks.filter(b => b.id !== id);

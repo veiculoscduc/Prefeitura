@@ -66,57 +66,69 @@ export async function logout() {
 
 export async function registerUser(data: { name: string, email: string, tipo: 'Docente' | 'Técnico', matricula: string, password: string }) {
   const emailLower = data.email.toLowerCase().trim();
-  const exists = await svcGetUserByEmail(emailLower);
-  if (exists) {
-    return { error: 'Este e-mail já está cadastrado em nosso sistema.' };
+  try {
+    const exists = await svcGetUserByEmail(emailLower);
+    if (exists) {
+      return { error: 'Este e-mail já está cadastrado em nosso sistema.' };
+    }
+    
+    const newUser: User = {
+      id: 'u_' + uuidv4().substring(0, 8),
+      name: data.name,
+      email: data.email,
+      role: 'SOLICITANTE',
+      tipo: data.tipo,
+      matricula: data.matricula,
+      password: data.password,
+      status: 'PENDENTE'
+    };
+    
+    await svcCreateUser(newUser);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
   }
-  
-  const newUser: User = {
-    id: 'u_' + uuidv4().substring(0, 8),
-    name: data.name,
-    email: data.email,
-    role: 'SOLICITANTE',
-    tipo: data.tipo,
-    matricula: data.matricula,
-    password: data.password,
-    status: 'PENDENTE'
-  };
-  
-  await svcCreateUser(newUser);
-  revalidatePath('/');
-  return { success: true };
 }
 
 export async function approveUser(userId: string, role: UserRole, tipo?: import('./types').SolicitanteType) {
   const admin = await resolveSession();
   if (admin?.role !== 'ADMIN') return { error: "Acesso negado" };
 
-  const u = await svcGetUserById(userId);
-  if (!u) return { error: "Usuário não encontrado." };
+  try {
+    const u = await svcGetUserById(userId);
+    if (!u) return { error: "Usuário não encontrado." };
 
-  const updates: Partial<User> = {
-    status: 'APROVADO',
-    role,
-  };
-  if (tipo) {
-    updates.tipo = tipo;
+    const updates: Partial<User> = {
+      status: 'APROVADO',
+      role,
+    };
+    if (tipo) {
+      updates.tipo = tipo;
+    }
+    
+    await svcUpdateUser(userId, updates);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
   }
-  
-  await svcUpdateUser(userId, updates);
-  revalidatePath('/');
-  return { success: true };
 }
 
 export async function rejectUser(userId: string) {
   const admin = await resolveSession();
   if (admin?.role !== 'ADMIN') return { error: "Acesso negado" };
 
-  const u = await svcGetUserById(userId);
-  if (!u) return { error: "Usuário não encontrado." };
+  try {
+    const u = await svcGetUserById(userId);
+    if (!u) return { error: "Usuário não encontrado." };
 
-  await svcUpdateUser(userId, { status: 'REJEITADO' });
-  revalidatePath('/');
-  return { success: true };
+    await svcUpdateUser(userId, { status: 'REJEITADO' });
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function switchUser(userId: string) {
@@ -234,9 +246,13 @@ export async function createRequest(data: Omit<ScheduleRequest, 'id' | 'status' 
     motoristasIds: [],
   };
 
-  await svcCreateRequest(newRequest);
-  revalidatePath('/');
-  return { success: true, request: newRequest };
+  try {
+    await svcCreateRequest(newRequest);
+    revalidatePath('/');
+    return { success: true, request: newRequest };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function cancelRequest(requestId: string) {
@@ -302,29 +318,41 @@ export async function createVehicle(data: Omit<Vehicle, 'id'>) {
     ...data,
     id: 'v_' + uuidv4().substring(0, 8),
   };
-  await svcCreateVehicle(newVehicle);
-  revalidatePath('/');
-  return { success: true };
+  try {
+    await svcCreateVehicle(newVehicle);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function deleteVehicle(vehicleId: string) {
   const user = await resolveSession();
   if (user?.role !== 'ADMIN') return { error: "Acesso negado" };
-  await svcDeleteVehicle(vehicleId);
-  revalidatePath('/');
-  return { success: true };
+  try {
+    await svcDeleteVehicle(vehicleId);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function updateUser(userId: string, data: Partial<User>) {
   const user = await resolveSession();
   if (user?.role !== 'ADMIN') return { error: "Acesso negado" };
-  const u = await svcGetUserById(userId);
-  if (u) {
-    await svcUpdateUser(userId, data);
-    revalidatePath('/');
-    return { success: true };
+  try {
+    const u = await svcGetUserById(userId);
+    if (u) {
+      await svcUpdateUser(userId, data);
+      revalidatePath('/');
+      return { success: true };
+    }
+    return { error: "Usuário não encontrado" };
+  } catch (err: any) {
+    return { error: err.message };
   }
-  return { error: "Usuário não encontrado" };
 }
 
 export async function createBlock(data: Omit<AgendaBlock, 'id'>) {
@@ -334,17 +362,25 @@ export async function createBlock(data: Omit<AgendaBlock, 'id'>) {
     ...data,
     id: uuidv4()
   };
-  await svcCreateBlock(newBlock);
-  revalidatePath('/');
-  return { success: true };
+  try {
+    await svcCreateBlock(newBlock);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function deleteBlock(blockId: string) {
   const user = await resolveSession();
   if (user?.role !== 'ADMIN') return { error: "Acesso negado" };
-  await svcDeleteBlock(blockId);
-  revalidatePath('/');
-  return { success: true };
+  try {
+    await svcDeleteBlock(blockId);
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 // ----------------- DRIVER ACTIONS -----------------
