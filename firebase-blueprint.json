@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in the vehicle scheduling system",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "SOLICITANTE", "MOTORISTA"] },
+        "password": { "type": "string" },
+        "status": { "type": "string", "enum": ["APROVADO", "PENDENTE", "REJEITADO"] },
+        "tipo": { "type": "string", "enum": ["Docente", "Técnico"] },
+        "matricula": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role", "password", "status"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Fitted vehicles for administrative tasks",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "plate": { "type": "string" },
+        "quantidadePassageiros": { "type": "number" }
+      },
+      "required": ["id", "name", "plate", "quantidadePassageiros"]
+    },
+    "ScheduleRequest": {
+      "title": "ScheduleRequest",
+      "description": "Vehicle booking requests done by Requesters",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "solicitanteId": { "type": "string" },
+        "dataSaida": { "type": "string" },
+        "horaSaida": { "type": "string" },
+        "dataRetorno": { "type": "string" },
+        "horaRetorno": { "type": "string" },
+        "veiculosIds": { "type": "array" },
+        "motoristasIds": { "type": "array" },
+        "destino": { "type": "string" },
+        "finalidade": { "type": "string" },
+        "status": { "type": "string", "enum": ["SOLICITADO", "CONFIRMADO", "NEGADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO_USUARIO", "CANCELADO_PREFEITURA"] },
+        "dataSolicitacao": { "type": "string" },
+        "passageirosQuantidade": { "type": "number" },
+        "kmSaida": { "type": "number" },
+        "kmRetorno": { "type": "number" },
+        "horaSaidaReal": { "type": "string" },
+        "horaRetornoReal": { "type": "string" },
+        "justificativaRejeicao": { "type": "string" }
+      },
+      "required": ["id", "solicitanteId", "dataSaida", "horaSaida", "dataRetorno", "horaRetorno", "veiculosIds", "destino", "finalidade", "status", "dataSolicitacao", "passageirosQuantidade"]
+    },
+    "AgendaBlock": {
+      "title": "AgendaBlock",
+      "description": "Administrative blocking of vehicles or scheduling dates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "dataInicio": { "type": "string" },
+        "dataFim": { "type": "string" },
+        "veiculoId": { "type": "string" },
+        "justificativa": { "type": "string" },
+        "horaInicio": { "type": "string" },
+        "horaFim": { "type": "string" }
+      },
+      "required": ["id", "dataInicio", "dataFim", "justificativa"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of all authorized and pending system users"
+    },
+    "/vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Collection of vehicles registered by administrators"
+    },
+    "/requests/{requestId}": {
+      "schema": "ScheduleRequest",
+      "description": "Collection of vehicle scheduling requests"
+    },
+    "/blocks/{blockId}": {
+      "schema": "AgendaBlock",
+      "description": "Collection of calendar locks created by administrators"
+    }
+  }
+}

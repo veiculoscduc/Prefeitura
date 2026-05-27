@@ -1,0 +1,6 @@
+{
+  "name": "Sistema de Agendamento de Veículos",
+  "description": "Sistema institucional para requisição e gestão de frota, com perfis para Solicitante, Administrador e Motorista.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
