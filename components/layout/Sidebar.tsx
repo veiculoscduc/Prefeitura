@@ -30,7 +30,6 @@ export function Sidebar({ currentUser }: SidebarProps) {
           { name: 'Bloqueios', href: '/admin/bloqueios', icon: Calendar },
           { name: 'Usuários', href: '/admin/usuarios', icon: Users },
           { name: 'Veículos', href: '/admin/veiculos', icon: Car },
-          { name: 'Supabase', href: '/admin/supabase', icon: Database },
         ];
       case 'MOTORISTA':
         return [
