@@ -71,7 +71,7 @@ export function AdminUserList({ users }: { users: User[] }) {
           <p className="text-xs text-amber-750 mb-4">
             Novos solicitantes cadastrados aguardando atribuição de perfil e aprovação regulamentar para acesso ao sistema.
           </p>
-          <div className="bg-white rounded-lg border border-amber-150 overflow-hidden shadow-xs">
+          <div className="bg-white rounded-lg border border-amber-150 overflow-hidden shadow-xs overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-amber-900 uppercase bg-amber-100/50 border-b border-amber-150">
                 <tr>
@@ -154,7 +154,8 @@ export function AdminUserList({ users }: { users: User[] }) {
           <h2 className="text-base font-bold text-slate-850">Diretório de Usuários Ativos</h2>
           <p className="text-xs text-slate-550 mt-0.5">Gestão de solicitantes, administradores e motoristas aprovados no sistema.</p>
         </div>
-        <table className="w-full text-sm text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
           <thead className="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200">
             <tr>
               <th className="px-6 py-3">Nome</th>
@@ -222,6 +223,7 @@ export function AdminUserList({ users }: { users: User[] }) {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

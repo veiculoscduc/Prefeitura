@@ -124,46 +124,61 @@ function mapBlockToDb(b: AgendaBlock): any {
 // --- DB ACCESS WRAPPERS ---
 
 export async function svcGetUsers(): Promise<User[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase.from('users').select('*');
-    if (!error && data) {
-      return data.map(mapUserFromDb);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) {
+        console.error('Supabase users table query error:', error.message || error);
+      } else if (data) {
+        return data.map(mapUserFromDb);
+      }
     }
-    console.error('Supabase users fetch fallback:', error);
+  } catch (err) {
+    console.error('Supabase users fetch exception:', err);
   }
   return db.users;
 }
 
 export async function svcGetUserByEmail(email: string): Promise<User | null> {
   const cleanEmail = email.toLowerCase().trim();
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', cleanEmail)
-      .maybeSingle();
-    if (!error && data) {
-      return mapUserFromDb(data);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+      if (error) {
+        console.error('Supabase user by email query error:', error.message || error);
+      } else if (data) {
+        return mapUserFromDb(data);
+      }
     }
-    console.error('Supabase user select fallback:', error);
+  } catch (err) {
+    console.error('Supabase user select exception:', err);
   }
   return db.users.find(u => u.email.toLowerCase().trim() === cleanEmail) || null;
 }
 
 export async function svcGetUserById(id: string): Promise<User | null> {
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-    if (!error && data) {
-      return mapUserFromDb(data);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (error) {
+        console.error('Supabase user by id query error:', error.message || error);
+      } else if (data) {
+        return mapUserFromDb(data);
+      }
     }
-    console.error('Supabase user by id fallback:', error);
+  } catch (err) {
+    console.error('Supabase user by id exception:', err);
   }
   return db.users.find(u => u.id === id) || null;
 }
@@ -207,13 +222,18 @@ export async function svcUpdateUser(id: string, updates: Partial<User>): Promise
 }
 
 export async function svcGetVehicles(): Promise<Vehicle[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase.from('vehicles').select('*');
-    if (!error && data) {
-      return data.map(mapVehicleFromDb);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) {
+        console.error('Supabase vehicles table query error:', error.message || error);
+      } else if (data) {
+        return data.map(mapVehicleFromDb);
+      }
     }
-    console.error('Supabase vehicles fetch fallback:', error);
+  } catch (err) {
+    console.error('Supabase vehicles fetch exception:', err);
   }
   return db.vehicles;
 }
@@ -246,13 +266,18 @@ export async function svcDeleteVehicle(id: string): Promise<void> {
 }
 
 export async function svcGetRequests(): Promise<ScheduleRequest[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase.from('requests').select('*');
-    if (!error && data) {
-      return data.map(mapRequestFromDb);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase.from('requests').select('*');
+      if (error) {
+        console.error('Supabase requests table query error:', error.message || error);
+      } else if (data) {
+        return data.map(mapRequestFromDb);
+      }
     }
-    console.error('Supabase requests fetch fallback:', error);
+  } catch (err) {
+    console.error('Supabase requests fetch exception:', err);
   }
   return db.requests;
 }
@@ -297,13 +322,18 @@ export async function svcUpdateRequest(id: string, updates: Partial<ScheduleRequ
 }
 
 export async function svcGetBlocks(): Promise<AgendaBlock[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    const { data, error } = await supabase.from('blocks').select('*');
-    if (!error && data) {
-      return data.map(mapBlockFromDb);
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data, error } = await supabase.from('blocks').select('*');
+      if (error) {
+        console.error('Supabase blocks table query error:', error.message || error);
+      } else if (data) {
+        return data.map(mapBlockFromDb);
+      }
     }
-    console.error('Supabase blocks fetch fallback:', error);
+  } catch (err) {
+    console.error('Supabase blocks fetch exception:', err);
   }
   return db.blocks;
 }

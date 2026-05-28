@@ -83,7 +83,14 @@ CREATE TABLE IF NOT EXISTS public.blocks (
   hora_fim TEXT,
   justificativa TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);`;
+);
+
+-- 5. DESATIVAR RLS (ROW LEVEL SECURITY) - RECOMENDADO PARA PROTOTIPAGEM
+-- (Garante que as consultas do app via chave pública/anon funcionem sem bloqueio de políticas)
+ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.vehicles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.blocks DISABLE ROW LEVEL SECURITY;`;
 
   const sqlSeedText = `-- CRIAÇÃO DO USUÁRIO ADMINISTRADOR PADRÃO (PREFEITURA)
 INSERT INTO public.users (id, name, email, role, password, status)

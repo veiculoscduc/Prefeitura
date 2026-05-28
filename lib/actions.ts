@@ -84,7 +84,7 @@ export async function registerUser(data: { name: string, email: string, tipo: 'D
     };
     
     await svcCreateUser(newUser);
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     return { error: err.message };
@@ -108,7 +108,7 @@ export async function approveUser(userId: string, role: UserRole, tipo?: import(
     }
     
     await svcUpdateUser(userId, updates);
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     return { error: err.message };
@@ -124,7 +124,7 @@ export async function rejectUser(userId: string) {
     if (!u) return { error: "Usuário não encontrado." };
 
     await svcUpdateUser(userId, { status: 'REJEITADO' });
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     return { error: err.message };
@@ -320,7 +320,7 @@ export async function createVehicle(data: Omit<Vehicle, 'id'>) {
   };
   try {
     await svcCreateVehicle(newVehicle);
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     return { error: err.message };
@@ -332,7 +332,7 @@ export async function deleteVehicle(vehicleId: string) {
   if (user?.role !== 'ADMIN') return { error: "Acesso negado" };
   try {
     await svcDeleteVehicle(vehicleId);
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     return { error: err.message };
@@ -346,7 +346,7 @@ export async function updateUser(userId: string, data: Partial<User>) {
     const u = await svcGetUserById(userId);
     if (u) {
       await svcUpdateUser(userId, data);
-      revalidatePath('/');
+      revalidatePath('/', 'layout');
       return { success: true };
     }
     return { error: "Usuário não encontrado" };

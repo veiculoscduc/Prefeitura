@@ -4,9 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Calendar, List, Users, Car, Menu, LogOut, Database } from 'lucide-react';
+import { Calendar, List, Users, Car, Menu, LogOut, Database, X } from 'lucide-react';
 import { User } from '@/lib/types';
 import { logout } from '@/lib/actions';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface SidebarProps {
   currentUser: User;
@@ -15,6 +16,7 @@ interface SidebarProps {
 export function Sidebar({ currentUser }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const links = React.useMemo(() => {
     switch (currentUser.role) {
@@ -42,65 +44,174 @@ export function Sidebar({ currentUser }: SidebarProps) {
   }, [currentUser.role]);
 
   return (
-    <aside
-      className={cn(
-        "bg-slate-900 flex-shrink-0 flex flex-col transition-all duration-300 h-full",
-        collapsed ? "w-20" : "w-64"
-      )}
-    >
-      <div className="p-6 flex items-center justify-between border-b border-slate-800">
-        <div className="flex items-center space-x-3 overflow-hidden">
-          <div className="w-8 h-8 shrink-0 bg-blue-600 rounded flex items-center justify-center text-white font-bold">V</div>
-          {!collapsed && <span className="text-white font-semibold tracking-wide truncate">S.A.V. Inst</span>}
-        </div>
-        <button onClick={() => setCollapsed(!collapsed)} className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 shrink-0 ml-2">
-          <Menu className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="flex-1 py-4 overflow-y-auto">
-        {!collapsed && <div className="px-6 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Navegação</div>}
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            title={collapsed ? link.name : undefined}
-            className={cn(
-               "flex items-center px-6 py-3 transition-colors",
-               pathname === link.href 
-                 ? "bg-blue-600/10 text-blue-400 border-r-4 border-blue-500" 
-                 : "text-slate-400 hover:bg-slate-800",
-               collapsed && "justify-center px-0 border-transparent border-r-4"
-            )}
-          >
-            <link.icon className={cn("shrink-0", collapsed ? "w-6 h-6" : "w-5 h-5", !collapsed && "mr-3")} />
-            {!collapsed && <span>{link.name}</span>}
-          </Link>
-        ))}
-      </div>
-
-      <div className="p-6 shrink-0 border-t border-slate-800">
-        <div className="bg-slate-800 rounded-lg p-4 flex flex-col gap-3">
-          <div className="min-w-0">
-            <p className="text-xs text-slate-400 mb-0.5">{!collapsed ? 'Usuário Logado' : 'User'}</p>
-            <p className="text-sm text-white font-medium truncate">{currentUser.name}</p>
-            {!collapsed && (
-              <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
-                {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
-              </p>
-            )}
+    <>
+      {/* Desktop Sidebar */}
+      <aside
+        id="desktop-sidebar"
+        className={cn(
+          "bg-slate-900 flex-shrink-0 flex flex-col transition-all duration-300 h-full hidden md:flex",
+          collapsed ? "w-20" : "w-64"
+        )}
+      >
+        <div className="p-6 flex items-center justify-between border-b border-slate-800">
+          <div className="flex items-center space-x-3 overflow-hidden">
+            <div className="w-8 h-8 shrink-0 bg-blue-600 rounded flex items-center justify-center text-white font-bold">V</div>
+            {!collapsed && <span className="text-white font-semibold tracking-wide truncate">S.A.V. Inst</span>}
           </div>
-          <button
-            onClick={async () => {
-              await logout();
-            }}
-            className="flex items-center justify-center gap-2 w-full text-xs font-semibold text-rose-400 hover:text-white bg-slate-900 hover:bg-rose-600/25 border border-slate-700 hover:border-rose-500/40 p-2 rounded-md transition-all cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            {!collapsed && <span>Sair do Sistema</span>}
+          <button onClick={() => setCollapsed(!collapsed)} className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 shrink-0 ml-2">
+            <Menu className="w-5 h-5" />
           </button>
         </div>
-      </div>
-    </aside>
+
+        <div className="flex-1 py-4 overflow-y-auto">
+          {!collapsed && <div className="px-6 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Navegação</div>}
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              title={collapsed ? link.name : undefined}
+              className={cn(
+                 "flex items-center px-6 py-3 transition-colors",
+                 pathname === link.href 
+                   ? "bg-blue-600/10 text-blue-400 border-r-4 border-blue-500" 
+                   : "text-slate-400 hover:bg-slate-800",
+                 collapsed && "justify-center px-0 border-transparent border-r-4"
+              )}
+            >
+              <link.icon className={cn("shrink-0", collapsed ? "w-6 h-6" : "w-5 h-5", !collapsed && "mr-3")} />
+              {!collapsed && <span>{link.name}</span>}
+            </Link>
+          ))}
+        </div>
+
+        <div className="p-6 shrink-0 border-t border-slate-800">
+          <div className="bg-slate-800 rounded-lg p-4 flex flex-col gap-3">
+            <div className="min-w-0">
+              <p className="text-xs text-slate-400 mb-0.5">{!collapsed ? 'Usuário Logado' : 'User'}</p>
+              <p className="text-sm text-white font-medium truncate">{currentUser.name}</p>
+              {!collapsed && (
+                <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
+                  {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={async () => {
+                await logout();
+              }}
+              className="flex items-center justify-center gap-2 w-full text-xs font-semibold text-rose-400 hover:text-white bg-slate-900 hover:bg-rose-600/25 border border-slate-700 hover:border-rose-500/40 p-2 rounded-md transition-all cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              {!collapsed && <span>Sair do Sistema</span>}
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Topbar and Header */}
+      <header
+        id="mobile-header"
+        className="flex md:hidden h-14 bg-slate-900 text-white items-center justify-between px-4 w-full z-40 shrink-0 border-b border-slate-800"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 shrink-0 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-sm">V</div>
+          <span className="text-white font-semibold tracking-wide text-sm">S.A.V. Inst</span>
+        </div>
+        <button 
+          id="mobile-menu-toggle"
+          onClick={() => setMobileOpen(true)} 
+          className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 shrink-0 cursor-pointer"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* Mobile Navigation Drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              id="mobile-menu-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 md:hidden"
+            />
+
+            {/* Menu Panel */}
+            <motion.div
+              id="mobile-menu-drawer"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-slate-900 text-white z-50 md:hidden flex flex-col border-r border-slate-800 shadow-2xl h-full"
+            >
+              <div className="p-4 flex items-center justify-between border-b border-slate-800">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 shrink-0 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-sm">V</div>
+                  <span className="text-white font-semibold tracking-wide text-sm">S.A.V. Inst</span>
+                </div>
+                <button
+                  id="close-mobile-menu"
+                  onClick={() => setMobileOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 py-4 overflow-y-auto px-2">
+                <div className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Navegação</div>
+                <nav className="space-y-1">
+                  {links.map((link) => (
+                    <Link
+                      id={`mobile-nav-${link.href.replace('/', 'home')}`}
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "flex items-center px-4 py-3 rounded-lg transition-colors text-sm",
+                        pathname === link.href
+                          ? "bg-blue-600/10 text-blue-400 font-medium"
+                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                      )}
+                    >
+                      <link.icon className="shrink-0 w-5 h-5 mr-3" />
+                      <span>{link.name}</span>
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="p-4 shrink-0 border-t border-slate-800 bg-slate-950/40">
+                <div className="bg-slate-800/80 rounded-lg p-4 flex flex-col gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 mb-0.5">Usuário Logado</p>
+                    <p className="text-sm text-white font-medium truncate">{currentUser.name}</p>
+                    <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
+                      {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
+                    </p>
+                  </div>
+                  <button
+                    id="mobile-logout-btn"
+                    onClick={async () => {
+                      setMobileOpen(false);
+                      await logout();
+                    }}
+                    className="flex items-center justify-center gap-2 w-full text-xs font-semibold text-rose-400 hover:text-white bg-slate-900 hover:bg-rose-600/25 border border-slate-700 hover:border-rose-500/40 p-2.5 rounded-md transition-all cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sair do Sistema</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

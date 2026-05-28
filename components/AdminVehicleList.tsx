@@ -103,7 +103,7 @@ export function AdminVehicleList({ vehicles }: { vehicles: Vehicle[] }) {
         </form>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
             <tr>

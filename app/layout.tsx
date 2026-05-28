@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans bg-gray-50 text-slate-800 h-screen flex overflow-hidden" suppressHydrationWarning>
+      <body className="font-sans bg-gray-50 text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden" suppressHydrationWarning>
         {currentUser ? (
           <>
             <Sidebar currentUser={currentUser} />
