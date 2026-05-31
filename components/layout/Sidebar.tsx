@@ -4,9 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Calendar, List, Users, Car, Menu, LogOut, Database, X } from 'lucide-react';
+import { Calendar, List, Users, Car, Menu, LogOut, Database, X, Key } from 'lucide-react';
 import { User } from '@/lib/types';
-import { logout } from '@/lib/actions';
+import { logout, changePassword } from '@/lib/actions';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface SidebarProps {
@@ -17,6 +17,54 @@ export function Sidebar({ currentUser }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const [changePasswordOpen, setChangePasswordOpen] = React.useState(false);
+  const [currentPassword, setCurrentPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
+  const [passwordError, setPasswordError] = React.useState('');
+  const [passwordSuccess, setPasswordSuccess] = React.useState('');
+  const [loadingPassword, setLoadingPassword] = React.useState(false);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!currentPassword) {
+      setPasswordError('Digite a sua senha atual.');
+      return;
+    }
+    if (newPassword.length < 4) {
+      setPasswordError('A nova senha deve ter no mínimo 4 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError('A confirmação da nova senha está diferente.');
+      return;
+    }
+
+    setLoadingPassword(true);
+    try {
+      const res = await changePassword(currentPassword, newPassword);
+      if (res?.error) {
+        setPasswordError(res.error);
+      } else {
+        setPasswordSuccess('Senha alterada com sucesso!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+        setTimeout(() => {
+          setChangePasswordOpen(false);
+          setPasswordSuccess('');
+        }, 1500);
+      }
+    } catch (err: any) {
+      setPasswordError(err.message || 'Ocorreu um erro ao atualizar a senha.');
+    } finally {
+      setLoadingPassword(false);
+    }
+  };
 
   const links = React.useMemo(() => {
     switch (currentUser.role) {
@@ -90,9 +138,23 @@ export function Sidebar({ currentUser }: SidebarProps) {
               <p className="text-xs text-slate-400 mb-0.5">{!collapsed ? 'Usuário Logado' : 'User'}</p>
               <p className="text-sm text-white font-medium truncate">{currentUser.name}</p>
               {!collapsed && (
-                <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
-                  {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
-                </p>
+                <>
+                  <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
+                    {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
+                  </p>
+                  <button 
+                    id="btn-desktop-change-password"
+                    onClick={() => {
+                      setPasswordError('');
+                      setPasswordSuccess('');
+                      setChangePasswordOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer mt-2"
+                  >
+                    <Key className="w-3.5 h-3.5 text-slate-550" />
+                    <span>Trocar Senha</span>
+                  </button>
+                </>
               )}
             </div>
             <button
@@ -194,6 +256,19 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     <p className="text-[10px] text-blue-400 uppercase mt-0.5 font-semibold tracking-wider font-mono">
                       {currentUser.role} {currentUser.tipo ? `/ ${currentUser.tipo}` : ''}
                     </p>
+                    <button 
+                      id="btn-mobile-change-password"
+                      onClick={() => {
+                        setPasswordError('');
+                        setPasswordSuccess('');
+                        setChangePasswordOpen(true);
+                        setMobileOpen(false);
+                      }}
+                      className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer mt-2"
+                    >
+                      <Key className="w-3.5 h-3.5 text-slate-550" />
+                      <span>Trocar Senha</span>
+                    </button>
                   </div>
                   <button
                     id="mobile-logout-btn"
@@ -210,6 +285,121 @@ export function Sidebar({ currentUser }: SidebarProps) {
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Modern Change Password Modal Dialog */}
+      <AnimatePresence>
+        {changePasswordOpen && (
+          <div id="change-password-modal-container" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              id="change-password-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setChangePasswordOpen(false)}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
+            />
+            <motion.div
+              id="change-password-dialog"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.15 }}
+              className="relative bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden border border-slate-200 z-10"
+            >
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div className="flex items-center gap-2">
+                  <Key className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-bold text-slate-800 text-base">Trocar de Senha</h3>
+                </div>
+                <button
+                  id="close-password-modal"
+                  onClick={() => setChangePasswordOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handlePasswordChange} className="p-5 space-y-4">
+                {passwordError && (
+                  <div className="bg-rose-50 text-rose-600 border border-rose-100 p-2.5 rounded text-xs font-medium">
+                    {passwordError}
+                  </div>
+                )}
+                {passwordSuccess && (
+                  <div className="bg-emerald-50 text-emerald-600 border border-emerald-100 p-2.5 rounded text-xs font-medium">
+                    {passwordSuccess}
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label htmlFor="currentPass" className="block text-xs font-semibold text-slate-550">
+                    Senha Atual
+                  </label>
+                  <input
+                    id="currentPass"
+                    type="password"
+                    required
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Sua senha atual"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label htmlFor="newPass" className="block text-xs font-semibold text-slate-550">
+                    Nova Senha
+                  </label>
+                  <input
+                    id="newPass"
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Mínimo 4 caracteres"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label htmlFor="confirmNewPass" className="block text-xs font-semibold text-slate-550">
+                    Confirmar Nova Senha
+                  </label>
+                  <input
+                    id="confirmNewPass"
+                    type="password"
+                    required
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Repita a nova senha"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t border-slate-100 mt-4">
+                  <button
+                    id="btn-cancel-password"
+                    type="button"
+                    onClick={() => setChangePasswordOpen(false)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold py-2 rounded transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    id="btn-submit-password"
+                    type="submit"
+                    disabled={loadingPassword}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold py-2 rounded transition-colors flex items-center justify-center cursor-pointer"
+                  >
+                    {loadingPassword ? 'Salvando...' : 'Salvar'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

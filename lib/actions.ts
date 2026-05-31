@@ -465,11 +465,65 @@ export async function registerReturn(requestId: string, kmRetorno: number) {
   const reqs = await svcGetRequests();
   const req = reqs.find(r => r.id === requestId);
   if (req && req.status === 'EM_ANDAMENTO') {
+    try {
+      await svcUpdateRequest(requestId, {
+        status: 'AGUARDANDO_CONFIRMACAO',
+        kmRetorno,
+        horaRetornoReal: new Date().toISOString(),
+      });
+      revalidatePath('/');
+      return { success: true };
+    } catch (err: any) {
+      return { error: err.message };
+    }
+  }
+  return { error: "Solicitação não encontrada ou não está em andamento." };
+}
+
+export async function confirmReturn(requestId: string) {
+  const user = await resolveSession();
+  if (!user) return { error: "Não autenticado" };
+
+  const reqs = await svcGetRequests();
+  const req = reqs.find(r => r.id === requestId);
+  if (!req) return { error: "Solicitação não encontrada." };
+
+  if (req.status !== 'AGUARDANDO_CONFIRMACAO') {
+    return { error: "A viagem não está aguardando confirmação." };
+  }
+
+  // Permite que o próprio solicitante ou o administrador confirme
+  if (req.solicitanteId !== user.id && user.role !== 'ADMIN') {
+    return { error: "Apenas o solicitantes criador da viagem ou o administrador pode confirmar a realização." };
+  }
+
+  try {
     await svcUpdateRequest(requestId, {
-      status: 'CONCLUIDO',
-      kmRetorno,
-      horaRetornoReal: new Date().toISOString(),
+      status: 'CONCLUIDO'
     });
     revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function changePassword(currentPass: string, newPass: string) {
+  const user = await resolveSession();
+  if (!user) return { error: "Não autenticado" };
+
+  const fullUser = await svcGetUserById(user.id);
+  if (!fullUser) return { error: "Usuário não encontrado." };
+
+  if (fullUser.password !== currentPass) {
+    return { error: "A senha atual informada está incorreta." };
+  }
+
+  try {
+    await svcUpdateUser(user.id, { password: newPass });
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
   }
 }

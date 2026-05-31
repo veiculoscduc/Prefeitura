@@ -13,12 +13,18 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
   const [kmInput, setKmInput] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
 
-  const myRides = requests.filter(r => (r.status === 'CONFIRMADO' || r.status === 'EM_ANDAMENTO') && r.motoristasIds?.includes(currentUser.id));
+  const myRides = requests
+    .filter(r => (r.status === 'CONFIRMADO' || r.status === 'EM_ANDAMENTO' || r.status === 'AGUARDANDO_CONFIRMACAO') && r.motoristasIds?.includes(currentUser.id))
+    .sort((a, b) => {
+      const dateA = new Date(`${a.dataSaida}T${a.horaSaida}`);
+      const dateB = new Date(`${b.dataSaida}T${b.horaSaida}`);
+      return dateA.getTime() - dateB.getTime();
+    });
   
   if (myRides.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-slate-500">
-        Nenhuma corrida sob sua responsabilidade (Confirmada ou Em Andamento).
+        Nenhuma corrida sob sua responsabilidade (Confirmada, Em Andamento ou Aguardando Confirmação).
       </div>
     );
   }
@@ -75,8 +81,14 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
                   </div>
                </div>
                <div className="flex flex-col items-end gap-2">
-                 <span className={`text-xs px-3 py-1 rounded-full font-semibold ${req.status === 'EM_ANDAMENTO' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                   {req.status}
+                 <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                   req.status === 'EM_ANDAMENTO' 
+                     ? 'bg-blue-100 text-blue-800' 
+                     : req.status === 'AGUARDANDO_CONFIRMACAO'
+                     ? 'bg-amber-100 text-amber-800 animate-pulse border border-amber-300'
+                     : 'bg-emerald-100 text-emerald-800'
+                 }`}>
+                   {req.status === 'AGUARDANDO_CONFIRMACAO' ? 'AGUARDANDO CONFIRMAÇÃO' : req.status}
                  </span>
                  {req.status === 'CONFIRMADO' && (
                    <button 
@@ -122,6 +134,16 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
                    <Button variant="outline" className="text-emerald-700 bg-white hover:bg-emerald-50 border-emerald-200" onClick={() => handleReturn(req.id)} disabled={loading === req.id || !kmInput[req.id]}>
                      Registrar Retorno
                    </Button>
+                 </div>
+               )}
+
+               {req.status === 'AGUARDANDO_CONFIRMACAO' && (
+                 <div className="text-slate-600 space-y-1.5 text-sm bg-amber-50/50 p-3 rounded-md border border-amber-200">
+                   <p className="font-semibold text-amber-850 text-xs">Retorno Registrado com Sucesso</p>
+                   <p className="text-xs">
+                     KM de Saída: <span className="font-semibold text-slate-800">{req.kmSaida}</span> | KM de Retorno: <span className="font-semibold text-slate-800">{req.kmRetorno}</span>
+                   </p>
+                   <p className="text-[11px] text-slate-500 italic">Aguardando que o solicitante confirme a realização da corrida.</p>
                  </div>
                )}
              </div>

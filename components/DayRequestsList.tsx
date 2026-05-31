@@ -19,6 +19,7 @@ export function DayRequestsList({ requests, currentUser, users, vehicles }: { re
       case 'NEGADO': 
       case 'CANCELADO_USUARIO': return { root: 'border-rose-100 bg-rose-50', text: 'text-rose-600' };
       case 'EM_ANDAMENTO': return { root: 'border-emerald-100 bg-emerald-50', text: 'text-emerald-600' };
+      case 'AGUARDANDO_CONFIRMACAO': return { root: 'border-amber-200 bg-amber-50/70 animate-pulse', text: 'text-amber-700' };
       default: return { root: 'border-slate-100 bg-slate-50', text: 'text-slate-600' };
     }
   };

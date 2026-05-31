@@ -20,7 +20,7 @@ export interface Vehicle {
   quantidadePassageiros?: number;
 }
 
-export type RequestStatus = 'SOLICITADO' | 'CONFIRMADO' | 'NEGADO' | 'CANCELADO_USUARIO' | 'CANCELADO_PREFEITURA' | 'EM_ANDAMENTO' | 'CONCLUIDO';
+export type RequestStatus = 'SOLICITADO' | 'CONFIRMADO' | 'NEGADO' | 'CANCELADO_USUARIO' | 'CANCELADO_PREFEITURA' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'AGUARDANDO_CONFIRMACAO';
 
 export interface ScheduleRequest {
   id: string;
