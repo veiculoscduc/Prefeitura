@@ -33,10 +33,12 @@ CREATE TABLE IF NOT EXISTS public.users (
   role TEXT NOT NULL DEFAULT 'SOLICITANTE',
   tipo TEXT,
   matricula TEXT,
-  password TEXT NOT NULL DEFAULT '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+  auth_id UUID UNIQUE,
   status TEXT NOT NULL DEFAULT 'PENDENTE',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+-- Remove password column using ALTER TABLE
+ALTER TABLE IF EXISTS public.users DROP COLUMN IF EXISTS password;
 
 -- 2. TABELA DE VEÍCULOS
 CREATE TABLE IF NOT EXISTS public.vehicles (
@@ -93,13 +95,12 @@ ALTER TABLE public.requests DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blocks DISABLE ROW LEVEL SECURITY;`;
 
   const sqlSeedText = `-- CRIAÇÃO DO USUÁRIO ADMINISTRADOR PADRÃO (PREFEITURA)
-INSERT INTO public.users (id, name, email, role, password, status)
+INSERT INTO public.users (id, name, email, role, status)
 VALUES (
   'admin_cduc',
   'Prefeitura',
   'veiculos.cduc@gmail.com',
   'ADMIN',
-  '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
   'APROVADO'
 )
 ON CONFLICT (email) DO UPDATE SET 

@@ -12,7 +12,6 @@ function mapUserFromDb(row: any): User {
     role: row.role,
     matricula: row.matricula,
     tipo: row.tipo,
-    password: row.password,
     status: row.status,
   };
 }
@@ -26,7 +25,6 @@ function mapUserToDb(user: User): any {
     role: user.role,
     matricula: user.matricula || null,
     tipo: user.tipo || null,
-    password: user.password || '12345',
     status: user.status || 'PENDENTE',
   };
 }
@@ -209,7 +207,6 @@ export async function svcUpdateUser(id: string, updates: Partial<User>): Promise
     if (updates.role !== undefined) dbUpdates.role = updates.role;
     if (updates.matricula !== undefined) dbUpdates.matricula = updates.matricula;
     if (updates.tipo !== undefined) dbUpdates.tipo = updates.tipo;
-    if (updates.password !== undefined) dbUpdates.password = updates.password;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
 
     const { error } = await supabase.from('users').update(dbUpdates).eq('id', id);

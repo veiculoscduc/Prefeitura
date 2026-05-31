@@ -37,12 +37,6 @@ export async function resolveSession(): Promise<User | null> {
   return null;
 }
 
-import crypto from 'crypto';
-
-function hashPassword(password: string) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
 export async function login(email: string, password: string) {
   const cleanEmail = email.toLowerCase().trim();
   const user = await svcGetUserByEmail(cleanEmail);
@@ -53,7 +47,7 @@ export async function login(email: string, password: string) {
 
   let isPasswordValid = false;
   
-  // Try Supabase Auth first
+  // Use Supabase Auth
   const { getSupabase } = await import('./supabase');
   const supabase = getSupabase();
   if (supabase) {
@@ -61,20 +55,14 @@ export async function login(email: string, password: string) {
       email: cleanEmail,
       password: password
     });
-    // If Supabase Auth is successful
+    
     if (data.user) {
       isPasswordValid = true;
-      // update auth_id if it's missing in our DB
       if (!user.auth_id) {
         await svcUpdateUser(user.id, { auth_id: data.user.id });
         user.auth_id = data.user.id;
       }
     }
-  }
-
-  // Fallback to legacy password check if Supabase Auth fails
-  if (!isPasswordValid) {
-    isPasswordValid = user.password === password || user.password === hashPassword(password);
   }
   
   if (!isPasswordValid) {
@@ -118,7 +106,6 @@ export async function registerUser(data: { name: string, email: string, tipo: 'D
       role: 'SOLICITANTE',
       tipo: data.tipo,
       matricula: data.matricula,
-      password: hashPassword(data.password),
       status: 'PENDENTE'
     };
 
@@ -411,7 +398,23 @@ export async function resetUserPassword(userId: string) {
   if (admin?.role !== 'ADMIN') return { error: "Acesso negado" };
 
   try {
-    await svcUpdateUser(userId, { password: hashPassword('123') });
+    const u = await svcGetUserById(userId);
+    if (!u || !u.auth_id) return { error: "Usuário não encontrado ou não migrado no Auth." };
+    
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const { createClient } = await import('@supabase/supabase-js');
+      const adminAuthClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      );
+      
+      const { error } = await adminAuthClient.auth.admin.updateUserById(u.auth_id, { password: '123' });
+      if (error) return { error: error.message };
+    } else {
+      return { error: "A chave SUPABASE_SERVICE_ROLE_KEY não está configurada para redefinição de senhas. Altere no Painel do Supabase." };
+    }
+    
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
@@ -592,19 +595,27 @@ export async function changePassword(currentPass: string, newPass: string) {
   const user = await resolveSession();
   if (!user) return { error: "Não autenticado" };
 
-  const fullUser = await svcGetUserById(user.id);
-  if (!fullUser) return { error: "Usuário não encontrado." };
+  const { getSupabase } = await import('./supabase');
+  const supabase = getSupabase();
+  if (!supabase) return { error: "Erro de configuração do banco" };
 
-  const isPasswordValid = fullUser.password === currentPass || fullUser.password === hashPassword(currentPass);
-  if (!isPasswordValid) {
-    return { error: "A senha atual informada está incorreta." };
+  const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPass
+  });
+
+  if (signInError || !data.user) {
+    return { error: "A senha atual informada está incorreta ou o usuário não está cadastrado no sistema de autenticação." };
   }
 
-  try {
-    await svcUpdateUser(user.id, { password: hashPassword(newPass) });
-    revalidatePath('/', 'layout');
-    return { success: true };
-  } catch (err: any) {
-    return { error: err.message };
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPass
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
   }
+
+  revalidatePath('/', 'layout');
+  return { success: true };
 }
