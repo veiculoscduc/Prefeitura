@@ -51,7 +51,31 @@ export async function login(email: string, password: string) {
     return { error: 'E-mail ou senha incorretos.' };
   }
 
-  const isPasswordValid = user.password === password || user.password === hashPassword(password);
+  let isPasswordValid = false;
+  
+  // Try Supabase Auth first
+  const { getSupabase } = await import('./supabase');
+  const supabase = getSupabase();
+  if (supabase) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password: password
+    });
+    // If Supabase Auth is successful
+    if (data.user) {
+      isPasswordValid = true;
+      // update auth_id if it's missing in our DB
+      if (!user.auth_id) {
+        await svcUpdateUser(user.id, { auth_id: data.user.id });
+        user.auth_id = data.user.id;
+      }
+    }
+  }
+
+  // Fallback to legacy password check if Supabase Auth fails
+  if (!isPasswordValid) {
+    isPasswordValid = user.password === password || user.password === hashPassword(password);
+  }
   
   if (!isPasswordValid) {
     return { error: 'E-mail ou senha incorretos.' };
@@ -97,6 +121,21 @@ export async function registerUser(data: { name: string, email: string, tipo: 'D
       password: hashPassword(data.password),
       status: 'PENDENTE'
     };
+
+    const { getSupabase } = await import('./supabase');
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { name: data.name }
+        }
+      });
+      if (authData.user) {
+        newUser.auth_id = authData.user.id;
+      }
+    }
     
     await svcCreateUser(newUser);
     revalidatePath('/', 'layout');

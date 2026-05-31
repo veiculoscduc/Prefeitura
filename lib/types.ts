@@ -4,6 +4,7 @@ export type UserStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO';
 
 export interface User {
   id: string;
+  auth_id?: string;
   name: string;
   email: string;
   role: UserRole;

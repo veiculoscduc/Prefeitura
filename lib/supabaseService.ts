@@ -6,6 +6,7 @@ import { User, Vehicle, ScheduleRequest, AgendaBlock, RefuelingRecord } from './
 function mapUserFromDb(row: any): User {
   return {
     id: row.id,
+    auth_id: row.auth_id,
     name: row.name,
     email: row.email,
     role: row.role,
@@ -19,6 +20,7 @@ function mapUserFromDb(row: any): User {
 function mapUserToDb(user: User): any {
   return {
     id: user.id,
+    auth_id: user.auth_id,
     name: user.name,
     email: user.email.toLowerCase().trim(),
     role: user.role,
@@ -203,6 +205,7 @@ export async function svcUpdateUser(id: string, updates: Partial<User>): Promise
   if (supabase) {
     const dbUpdates: any = {};
     if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.auth_id !== undefined) dbUpdates.auth_id = updates.auth_id;
     if (updates.role !== undefined) dbUpdates.role = updates.role;
     if (updates.matricula !== undefined) dbUpdates.matricula = updates.matricula;
     if (updates.tipo !== undefined) dbUpdates.tipo = updates.tipo;
