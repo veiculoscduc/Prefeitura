@@ -15,7 +15,11 @@ export function DriverView({ requests, vehicles, users, currentUser }: { request
     r.status === 'CONFIRMADO' && 
     (!r.motoristasIds || r.motoristasIds.length < r.veiculosIds.length) &&
     !r.motoristasIds?.includes(currentUser.id)
-  );
+  ).sort((a, b) => {
+    const dateA = new Date(`${a.dataSaida}T${a.horaSaida}`);
+    const dateB = new Date(`${b.dataSaida}T${b.horaSaida}`);
+    return dateA.getTime() - dateB.getTime();
+  });
 
   async function handleClaim(id: string) {
     setLoading(id);
