@@ -221,6 +221,19 @@ export async function svcUpdateUser(id: string, updates: Partial<User>): Promise
   }
 }
 
+export async function svcDeleteUser(id: string): Promise<void> {
+  const supabase = getSupabase();
+  if (supabase) {
+    const { error } = await supabase.from('users').delete().eq('id', id);
+    if (error) {
+      console.error('Supabase user delete error:', error);
+      throw new Error('Erro ao excluir usuário no banco de dados.');
+    }
+  } else {
+    db.users = db.users.filter(u => u.id !== id);
+  }
+}
+
 export async function svcGetVehicles(): Promise<Vehicle[]> {
   try {
     const supabase = getSupabase();

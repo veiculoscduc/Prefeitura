@@ -11,6 +11,7 @@ import {
   svcGetUserById,
   svcCreateUser,
   svcUpdateUser,
+  svcDeleteUser,
   svcGetVehicles,
   svcCreateVehicle,
   svcDeleteVehicle,
@@ -36,12 +37,26 @@ export async function resolveSession(): Promise<User | null> {
   return null;
 }
 
+import crypto from 'crypto';
+
+function hashPassword(password: string) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
 export async function login(email: string, password: string) {
   const cleanEmail = email.toLowerCase().trim();
   const user = await svcGetUserByEmail(cleanEmail);
-  if (!user || user.password !== password) {
+  
+  if (!user) {
     return { error: 'E-mail ou senha incorretos.' };
   }
+
+  const isPasswordValid = user.password === password || user.password === hashPassword(password);
+  
+  if (!isPasswordValid) {
+    return { error: 'E-mail ou senha incorretos.' };
+  }
+  
   if (user.status === 'PENDENTE') {
     return { error: 'Seu cadastro está pendente de aprovação por um administrador.' };
   }
@@ -79,7 +94,7 @@ export async function registerUser(data: { name: string, email: string, tipo: 'D
       role: 'SOLICITANTE',
       tipo: data.tipo,
       matricula: data.matricula,
-      password: data.password,
+      password: hashPassword(data.password),
       status: 'PENDENTE'
     };
     
@@ -339,6 +354,32 @@ export async function deleteVehicle(vehicleId: string) {
   }
 }
 
+export async function deleteUser(userId: string) {
+  const admin = await resolveSession();
+  if (admin?.role !== 'ADMIN') return { error: "Acesso negado" };
+
+  try {
+    await svcDeleteUser(userId);
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function resetUserPassword(userId: string) {
+  const admin = await resolveSession();
+  if (admin?.role !== 'ADMIN') return { error: "Acesso negado" };
+
+  try {
+    await svcUpdateUser(userId, { password: hashPassword('123') });
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
 export async function updateUser(userId: string, data: Partial<User>) {
   const user = await resolveSession();
   if (user?.role !== 'ADMIN') return { error: "Acesso negado" };
@@ -515,12 +556,13 @@ export async function changePassword(currentPass: string, newPass: string) {
   const fullUser = await svcGetUserById(user.id);
   if (!fullUser) return { error: "Usuário não encontrado." };
 
-  if (fullUser.password !== currentPass) {
+  const isPasswordValid = fullUser.password === currentPass || fullUser.password === hashPassword(currentPass);
+  if (!isPasswordValid) {
     return { error: "A senha atual informada está incorreta." };
   }
 
   try {
-    await svcUpdateUser(user.id, { password: newPass });
+    await svcUpdateUser(user.id, { password: hashPassword(newPass) });
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {

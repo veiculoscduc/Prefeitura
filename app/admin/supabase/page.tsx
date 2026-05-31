@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   role TEXT NOT NULL DEFAULT 'SOLICITANTE',
   tipo TEXT,
   matricula TEXT,
-  password TEXT NOT NULL DEFAULT '12345',
+  password TEXT NOT NULL DEFAULT '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
   status TEXT NOT NULL DEFAULT 'PENDENTE',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -99,7 +99,7 @@ VALUES (
   'Prefeitura',
   'veiculos.cduc@gmail.com',
   'ADMIN',
-  '12345',
+  '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
   'APROVADO'
 )
 ON CONFLICT (email) DO UPDATE SET 

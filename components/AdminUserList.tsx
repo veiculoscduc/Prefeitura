@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { User, UserRole, SolicitanteType } from '@/lib/types';
-import { updateUser, approveUser, rejectUser } from '@/lib/actions';
+import { updateUser, approveUser, rejectUser, deleteUser, resetUserPassword } from '@/lib/actions';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select } from './ui/select';
@@ -213,9 +213,35 @@ export function AdminUserList({ users }: { users: User[] }) {
                         <Button size="sm" className="h-7 px-2" onClick={() => handleSave(u.id)}>Salvar</Button>
                       </div>
                     ) : (
-                      <Button variant="outline" size="sm" className="h-7 px-3" onClick={() => handleEdit(u)}>
-                        Editar
-                      </Button>
+                      <div className="flex justify-end gap-2 text-xs">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-slate-600 hover:text-slate-800" onClick={() => handleEdit(u)}>
+                          Editar
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 px-2 text-amber-600 hover:text-amber-800 hover:bg-amber-50"
+                          onClick={async () => {
+                            if (window.confirm('Deseja resetar a senha deste usuário para "123"?')) {
+                              await resetUserPassword(u.id);
+                            }
+                          }}
+                        >
+                          Resetar Senha
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 px-2 text-rose-600 hover:text-rose-800 hover:bg-rose-50"
+                          onClick={async () => {
+                            if (window.confirm('Tem certeza que deseja excluir este usuário definitivamente?')) {
+                              await deleteUser(u.id);
+                            }
+                          }}
+                        >
+                          Excluir
+                        </Button>
+                      </div>
                     )}
                   </td>
                 </tr>
