@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   matricula?: string;
   tipo?: SolicitanteType;
+  password?: string;
   status?: UserStatus;
 }
 

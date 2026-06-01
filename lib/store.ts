@@ -11,7 +11,7 @@ interface StoreType {
 
 // Initial mock data
 const initialUsers: User[] = [
-  { id: 'admin_cduc', name: 'Prefeitura', email: 'veiculos.cduc@gmail.com', role: 'ADMIN', status: 'APROVADO' },
+  { id: 'admin_cduc', name: 'Prefeitura', email: 'veiculos.cduc@gmail.com', role: 'ADMIN', password: '12345', status: 'APROVADO' },
 ];
 
 const initialVehicles: Vehicle[] = [
@@ -56,12 +56,15 @@ if (!globalThis.__SYSTEM_STORE__) {
     globalThis.__SYSTEM_STORE__.users[existingAdminIndex].name = 'Prefeitura';
     globalThis.__SYSTEM_STORE__.users[existingAdminIndex].role = 'ADMIN';
     globalThis.__SYSTEM_STORE__.users[existingAdminIndex].status = 'APROVADO';
+    if (!globalThis.__SYSTEM_STORE__.users[existingAdminIndex].password) {
+      globalThis.__SYSTEM_STORE__.users[existingAdminIndex].password = '12345';
+    }
   } else {
     // Inject the missing admin user
     globalThis.__SYSTEM_STORE__.users.push(initialUsers[0]);
   }
 
-  // Ensure all existing active users have status defined
+  // Ensure all existing active users have status and passwords defined
   globalThis.__SYSTEM_STORE__.users = globalThis.__SYSTEM_STORE__.users.map(u => {
     // If it's the admin, keep role as ADMIN
     const isMainAdmin = u.email.toLowerCase().trim() === 'veiculos.cduc@gmail.com';
@@ -69,7 +72,8 @@ if (!globalThis.__SYSTEM_STORE__) {
       ...u,
       name: isMainAdmin ? 'Prefeitura' : u.name,
       role: isMainAdmin ? 'ADMIN' : u.role,
-      status: isMainAdmin ? 'APROVADO' : (u.status || 'PENDENTE')
+      status: isMainAdmin ? 'APROVADO' : (u.status || 'PENDENTE'),
+      password: u.password || '12345',
     };
   });
 }

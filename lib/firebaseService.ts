@@ -70,6 +70,7 @@ async function ensureDbSeeded() {
         name: 'Administrador Salvador',
         email: 'veiculos.cduc@gmail.com',
         role: 'ADMIN',
+        password: '12345',
         status: 'APROVADO'
       };
       await setDoc(adminRef, defaultAdmin);
