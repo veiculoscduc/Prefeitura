@@ -35,7 +35,7 @@ BEGIN
         'authenticated',
         'authenticated',
         rec.email,
-        crypt('12345', gen_salt('bf')), -- Todo usuário migrado receberá a senha padrão '12345' do Supabase Auth
+        crypt('1234', gen_salt('bf')), -- Todo usuário migrado receberá a senha padrão '1234' do Supabase Auth (Apenas para migração inicial! Novos usuários cadastrados via app mantêm a própria senha escolhida).
         now(), now(), now(),
         '{"provider":"email","providers":["email"]}',
         json_build_object('name', rec.name),

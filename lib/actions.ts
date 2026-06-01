@@ -142,11 +142,8 @@ export async function registerUser(data: {
       status: "PENDENTE",
     };
 
-    const { getSupabase } = await import("./supabase");
-    const supabase = getSupabase();
-    if (!supabase) {
-      return { error: "Serviço de autenticação do Supabase não configurado." };
-    }
+    const { createClient } = await import("./supabase/server");
+    const supabase = await createClient();
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
@@ -491,7 +488,7 @@ export async function resetUserPassword(userId: string) {
 
       const { error } = await adminAuthClient.auth.admin.updateUserById(
         u.auth_id,
-        { password: "123" },
+        { password: "1234" },
       );
       if (error) return { error: error.message };
     } else {
