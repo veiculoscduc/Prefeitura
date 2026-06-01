@@ -588,17 +588,15 @@ export async function confirmReturn(requestId: string) {
   }
 }
 
-export async function changePassword(currentPass: string, newPass: string) {
-  const user = await resolveSession();
+export async function changePassword(newPass: string, userId?: string) {
+  let user = await resolveSession();
+  if (!user && userId) {
+    user = await svcGetUserById(userId);
+  }
   if (!user) return { error: "Não autenticado" };
 
   const fullUser = await svcGetUserById(user.id);
   if (!fullUser) return { error: "Usuário não encontrado." };
-
-  const isPasswordValid = fullUser.password === currentPass || fullUser.password === hashPassword(currentPass);
-  if (!isPasswordValid) {
-    return { error: "A senha atual informada está incorreta." };
-  }
 
   try {
     await svcUpdateUser(user.id, { password: hashPassword(newPass) });

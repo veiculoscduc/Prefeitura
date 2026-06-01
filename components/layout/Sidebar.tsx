@@ -19,7 +19,6 @@ export function Sidebar({ currentUser }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const [changePasswordOpen, setChangePasswordOpen] = React.useState(false);
-  const [currentPassword, setCurrentPassword] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
   const [passwordError, setPasswordError] = React.useState('');
@@ -31,10 +30,6 @@ export function Sidebar({ currentUser }: SidebarProps) {
     setPasswordError('');
     setPasswordSuccess('');
 
-    if (!currentPassword) {
-      setPasswordError('Digite a sua senha atual.');
-      return;
-    }
     if (newPassword.length < 4) {
       setPasswordError('A nova senha deve ter no mínimo 4 caracteres.');
       return;
@@ -46,12 +41,11 @@ export function Sidebar({ currentUser }: SidebarProps) {
 
     setLoadingPassword(true);
     try {
-      const res = await changePassword(currentPassword, newPassword);
+      const res = await changePassword(newPassword, currentUser.id);
       if (res?.error) {
         setPasswordError(res.error);
       } else {
         setPasswordSuccess('Senha alterada com sucesso!');
-        setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
         setTimeout(() => {
@@ -333,21 +327,6 @@ export function Sidebar({ currentUser }: SidebarProps) {
                     {passwordSuccess}
                   </div>
                 )}
-
-                <div className="space-y-1">
-                  <label htmlFor="currentPass" className="block text-xs font-semibold text-slate-550">
-                    Senha Atual
-                  </label>
-                  <input
-                    id="currentPass"
-                    type="password"
-                    required
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full border border-slate-300 rounded px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    placeholder="Sua senha atual"
-                  />
-                </div>
 
                 <div className="space-y-1">
                   <label htmlFor="newPass" className="block text-xs font-semibold text-slate-550">
