@@ -144,17 +144,31 @@ export async function registerUser(data: {
 
     const { getSupabase } = await import("./supabase");
     const supabase = getSupabase();
-    if (supabase) {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: { name: data.name },
-        },
-      });
-      if (authData.user) {
-        newUser.auth_id = authData.user.id;
-      }
+    if (!supabase) {
+      return { error: "Serviço de autenticação do Supabase não configurado." };
+    }
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: { name: data.name },
+      },
+    });
+
+    if (authError) {
+      return {
+        error: `Erro no cadastro de autenticação: ${authError.message}`,
+      };
+    }
+
+    if (authData.user) {
+      newUser.auth_id = authData.user.id;
+    } else {
+      return {
+        error:
+          "Cadastro concluído mas ID de autenticação não foi retornado pelo Supabase.",
+      };
     }
 
     await svcCreateUser(newUser);
