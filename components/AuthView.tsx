@@ -118,7 +118,7 @@ export function AuthView() {
                 <CheckCircle2 className="w-10 h-10 animate-bounce" />
               </div>
               <h2 className="text-xl font-bold text-slate-850 leading-tight">
-                Solicitação Comercializada!
+                Solicitação Realizada!
               </h2>
               <p className="text-sm text-slate-600 mt-3 px-2 leading-relaxed">
                 Seu cadastro de perfil de acesso foi registrado com sucesso. Sua solicitação passará pelo crivo do <strong>administrador</strong> para aprovação física e liberação do acesso.
