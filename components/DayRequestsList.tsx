@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ScheduleRequest, User, Vehicle } from '@/lib/types';
-import { Clock, MapPin } from 'lucide-react';
+import { Clock, MapPin, User as UserIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { cancelRequest, adminApprove, adminReject } from '@/lib/actions';
 import { Button } from './ui/button';
@@ -49,6 +49,7 @@ export function DayRequestsList({ requests, currentUser, users, vehicles }: { re
             <p className="text-sm font-semibold mb-2">Destino: {req.enderecoDestino}</p>
 
             <div className="space-y-1 text-xs text-slate-600">
+               <div className="flex items-center"><UserIcon className="w-3.5 h-3.5 mr-1 text-blue-500 opacity-80" /> <span className="font-semibold text-slate-700">Solicitante:</span><span className="ml-1 text-slate-900 font-medium">{solicitante?.name || 'Não identificado'}</span></div>
                <div className="flex items-center"><Clock className="w-3 h-3 mr-1 opacity-60" /> {req.horaSaida} - {req.horaRetorno}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" /> {req.veiculosIds.length} Veículo(s): {veiculosNomes || "?"}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60 flex-shrink-0 text-transparent" /> Condutor(es): {driverName}</div>
