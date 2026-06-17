@@ -67,6 +67,8 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
     <div className="space-y-4">
       {myRides.map(req => {
         const solicitante = users.find(u => u.id === req.solicitanteId);
+        const reqVehicles = vehicles.filter(v => req.veiculosIds?.includes(v.id));
+        const localSaida = (req.vaiSairCampus || !req.enderecoSaida) ? "Saída do Campus" : req.enderecoSaida;
         return (
           <div key={req.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
              <div className="flex justify-between items-start mb-4">
@@ -75,9 +77,21 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
                     {format(parseISO(req.dataSaida), 'dd/MM/yyyy')} 
                     <span className="text-sm font-normal text-slate-500 ml-2">Das {req.horaSaida} às {req.horaRetorno}</span>
                   </h3>
-                  <div className="text-sm space-y-1">
-                    <p className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-emerald-500" /> {req.enderecoDestino}</p>
-                    <p className="text-slate-600">Passageiro: {req.vaiAcompanhar ? solicitante?.name : req.nomePassageiro}</p>
+                  <div className="text-sm space-y-1.5">
+                    <p className="text-slate-700">
+                      <span className="font-bold text-slate-800">Veículo:</span> {reqVehicles.map(v => `${v.name} (${v.plate})`).join(', ') || 'Não definido'}
+                    </p>
+                    <p className="text-slate-700">
+                      <span className="font-bold text-slate-800">Local de Saída:</span> {localSaida}
+                    </p>
+                    {req.vaiSairCampus && req.horarioNoLocal && (
+                      <p className="flex items-center gap-1.5 text-xs text-indigo-850 bg-indigo-50/50 p-1 rounded border border-indigo-100 max-w-max">
+                        <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                        <span className="font-bold">Horário no Local:</span> {req.horarioNoLocal}
+                      </p>
+                    )}
+                    <p className="flex items-center gap-1.5 text-slate-700"><MapPin className="w-4 h-4 text-emerald-500" /> <span className="font-bold text-slate-800">Destino:</span> {req.enderecoDestino}</p>
+                    <p className="text-slate-600"><span className="font-semibold">Passageiro:</span> {req.vaiAcompanhar ? solicitante?.name : req.nomePassageiro}</p>
                   </div>
                </div>
                <div className="flex flex-col items-end gap-2">

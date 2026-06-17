@@ -51,6 +51,10 @@ export function DayRequestsList({ requests, currentUser, users, vehicles }: { re
             <div className="space-y-1 text-xs text-slate-600">
                <div className="flex items-center"><UserIcon className="w-3.5 h-3.5 mr-1 text-blue-500 opacity-80" /> <span className="font-semibold text-slate-700">Solicitante:</span><span className="ml-1 text-slate-900 font-medium">{solicitante?.name || 'Não identificado'}</span></div>
                <div className="flex items-center"><Clock className="w-3 h-3 mr-1 opacity-60" /> {req.horaSaida} - {req.horaRetorno}</div>
+               {req.vaiSairCampus && req.horarioNoLocal && (
+                 <div className="flex items-center text-indigo-700 font-medium"><Clock className="w-3 h-3 mr-1 text-indigo-500 opacity-80" /> Horário no Local: {req.horarioNoLocal}</div>
+               )}
+               <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" /> Origem / Saída: {req.vaiSairCampus ? "Campus" : (req.enderecoSaida || '-')}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" /> {req.veiculosIds.length} Veículo(s): {veiculosNomes || "?"}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60 flex-shrink-0 text-transparent" /> Condutor(es): {driverName}</div>
             </div>

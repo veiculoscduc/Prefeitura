@@ -38,8 +38,14 @@ export function MyRequestsList({ requests, users }: { requests: ScheduleRequest[
               </span>
             </div>
             
-            <div className="text-sm text-slate-600 mb-4">
+            <div className="text-sm text-slate-600 mb-4 space-y-1">
               <p><strong className="text-slate-800">Destino:</strong> {req.enderecoDestino}</p>
+              {req.vaiSairCampus && req.horarioNoLocal && (
+                <div className="flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded w-max mt-1">
+                  <span>Horário no Local:</span>
+                  <span className="font-bold">{req.horarioNoLocal}</span>
+                </div>
+              )}
             </div>
 
             <div className="bg-slate-50 rounded-lg p-3 text-sm border border-slate-100 mb-4 text-slate-600">

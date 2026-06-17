@@ -41,6 +41,7 @@ export interface ScheduleRequest {
   vaiSairCampus: boolean;
   enderecoSaida?: string;
   enderecoDestino: string;
+  horarioNoLocal?: string;
   
   // Post-creation fields
   justificativaRejeicao?: string;

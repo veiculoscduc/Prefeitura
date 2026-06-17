@@ -53,8 +53,17 @@ export function AdminRequestsTable({ requests, users, vehicles }: { requests: Sc
                   <div className="text-xs text-slate-600 mt-1 flex items-center"><span className="font-mono">{req.horaSaida}</span> <span className="mx-1 text-slate-300">-</span> <span className="font-mono">{req.horaRetorno}</span></div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm">{req.vaiSairCampus ? 'Fora do Campus' : 'Interno'}</div>
-                  {!req.vaiSairCampus && <div className="text-xs text-slate-500 mt-1">Origem: {req.enderecoSaida || '-'}</div>}
+                  <div className="text-sm font-semibold">{req.vaiSairCampus ? 'Fora do Campus' : 'Interno'}</div>
+                  {req.vaiSairCampus ? (
+                    <div className="space-y-1 mt-1">
+                      <div className="text-xs text-slate-500">Origem: Campus</div>
+                      {req.horarioNoLocal && (
+                        <div className="text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-1 py-0.5 rounded w-max">Horário no Loc: {req.horarioNoLocal}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-slate-500 mt-1">Origem: {req.enderecoSaida || '-'}</div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm">{req.vaiAcompanhar ? 'Próprio Solicitante' : (req.nomePassageiro || '-')}</div>

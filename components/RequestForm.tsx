@@ -20,6 +20,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
   const [vaiAcompanhar, setVaiAcompanhar] = React.useState(true);
   const [vaiSairCampus, setVaiSairCampus] = React.useState(true);
   const [quantidadePassageiros, setQuantidadePassageiros] = React.useState(1);
+  const [horarioNoLocal, setHorarioNoLocal] = React.useState('');
 
   // Form State
   const [horaSaida, setHoraSaida] = React.useState('');
@@ -34,6 +35,10 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
     e.preventDefault();
     if (!horaSaida || !horaRetorno || !veiculo1 || !enderecoDestino) {
       alert("Preencha os campos obrigatórios.");
+      return;
+    }
+    if (vaiSairCampus && !horarioNoLocal) {
+      alert("Por favor, preencha o horário no local.");
       return;
     }
     if (doisVeiculos && !veiculo2) {
@@ -57,6 +62,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
         enderecoSaida: !vaiSairCampus ? enderecoSaida : undefined,
         enderecoDestino,
         quantidadePassageiros,
+        horarioNoLocal: vaiSairCampus ? horarioNoLocal : undefined,
       });
 
       if (response && 'error' in response) {
@@ -163,7 +169,10 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
 
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-medium text-slate-800 cursor-pointer">
-             <Checkbox checked={vaiSairCampus} onCheckedChange={setVaiSairCampus} />
+             <Checkbox checked={vaiSairCampus} onCheckedChange={(checked) => {
+               setVaiSairCampus(!!checked);
+               if (!checked) setHorarioNoLocal('');
+             }} />
              Vai sair do campus?
           </label>
           {!vaiSairCampus && (
@@ -173,6 +182,18 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
               onChange={e => setEnderecoSaida(e.target.value)} 
               required
             />
+          )}
+          {vaiSairCampus && (
+            <div className="space-y-1">
+              <Label htmlFor="horarioNoLocal">Horário no Local / Evento (Obrigatório)</Label>
+              <Input 
+                id="horarioNoLocal"
+                type="time"
+                value={horarioNoLocal} 
+                onChange={e => setHorarioNoLocal(e.target.value)} 
+                required
+              />
+            </div>
           )}
         </div>
 
