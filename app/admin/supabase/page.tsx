@@ -6,7 +6,7 @@ import { Database, Copy, Check, Terminal, ExternalLink, HelpCircle } from 'lucid
 
 export default function SupabaseIntegrationPage() {
   const [configured, setConfigured] = useState<boolean>(false);
-  const [copiedText, setCopiedText] = useState<'env' | 'schema' | 'seed' | null>(null);
+  const [copiedText, setCopiedText] = useState<'env' | 'schema' | 'seed' | 'migration' | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -15,7 +15,7 @@ export default function SupabaseIntegrationPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCopy = (type: 'env' | 'schema' | 'seed', text: string) => {
+  const handleCopy = (type: 'env' | 'schema' | 'seed' | 'migration', text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedText(type);
     setTimeout(() => setCopiedText(null), 2500);
@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS public.requests (
   vai_sair_campus BOOLEAN,
   endereco_saida TEXT,
   endereco_destino TEXT,
+  horario_no_local TEXT,
   justificativa_rejeicao TEXT,
   km_saida INTEGER,
   km_retorno INTEGER,
@@ -113,6 +114,10 @@ VALUES
   ('v2', 'Gol Volkswagen', 'DEF-5678', 4),
   ('v3', 'Ônibus Mercedes', 'GHI-9012', 40)
 ON CONFLICT (id) DO NOTHING;`;
+
+  const sqlMigrationText = `-- ADICIONADO RECENTEMENTE:
+-- Se o seu banco de dados já estava criado e você não quer resetar a tabela e sim atualizar para ter o campo novo
+ALTER TABLE public.requests ADD COLUMN IF NOT EXISTS horario_no_local TEXT;`;
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8" id="supabase-page-container">
@@ -279,6 +284,40 @@ ON CONFLICT (id) DO NOTHING;`;
           </p>
           <pre className="bg-slate-950 text-slate-100 rounded-lg p-4 font-mono text-xs overflow-x-auto leading-relaxed border border-slate-800">
             {sqlSeedText}
+          </pre>
+        </div>
+      </div>
+
+      {/* Section 4: Migrations */}
+      <div className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden" id="migration-script-section">
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+          <span className="font-semibold text-slate-800 flex items-center gap-2">
+            <ExternalLink className="w-5 h-5 text-indigo-600" />
+            4. Atualizações e Correções (Migrations)
+          </span>
+          <button
+            onClick={() => handleCopy('migration', sqlMigrationText)}
+            className="flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-300 px-3 py-1.5 rounded cursor-pointer transition-all"
+          >
+            {copiedText === 'migration' ? (
+              <>
+                <Check className="w-4 h-4 text-emerald-600" />
+                Copiado!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copiar Migration SQL
+              </>
+            )}
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-slate-600">
+            Se você já havia configurado o Supabase antes e começou a receber <strong>erros de colunas ausentes</strong> (ex: <code className="bg-slate-100 px-1 py-0.5 rounded">horario_no_local</code>), rode este script no SQL Editor para não perder seus dados existentes e sim apenas adicionar a coluna necessária:
+          </p>
+          <pre className="bg-slate-950 text-slate-100 rounded-lg p-4 font-mono text-xs overflow-x-auto leading-relaxed border border-slate-800">
+            {sqlMigrationText}
           </pre>
         </div>
       </div>
