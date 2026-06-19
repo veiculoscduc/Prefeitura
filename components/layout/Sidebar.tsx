@@ -74,6 +74,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
           { name: 'Bloqueios', href: '/admin/bloqueios', icon: Calendar },
           { name: 'Usuários', href: '/admin/usuarios', icon: Users },
           { name: 'Veículos', href: '/admin/veiculos', icon: Car },
+          { name: 'Abastecimentos & Manut.', href: '/admin/registros', icon: Database },
         ];
       case 'MOTORISTA':
         return [

@@ -309,6 +309,112 @@ export async function createRequest(data: Omit<ScheduleRequest, 'id' | 'status' 
   }
 }
 
+export async function updateRequestTime(
+  requestId: string,
+  dataSaida: string,
+  horaSaida: string,
+  horaRetorno: string,
+  horarioNoLocal?: string
+) {
+  const user = await resolveSession();
+  if (!user) return { error: "Não autenticado" };
+
+  const [users, requests, blocks, vehicles] = await Promise.all([
+    svcGetUsers(),
+    svcGetRequests(),
+    svcGetBlocks(),
+    svcGetVehicles(),
+  ]);
+
+  const targetRequest = requests.find(r => r.id === requestId);
+  if (!targetRequest) {
+    return { error: "Solicitação não encontrada." };
+  }
+
+  // Ensure only owner or ADMIN can edit
+  if (targetRequest.solicitanteId !== user.id && user.role !== 'ADMIN') {
+    return { error: "Não autorizado a alterar este agendamento." };
+  }
+
+  // Helper to parse "HH:mm" to minutes since midnight
+  const parseTime = (timeStr: string) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const newStartMin = parseTime(horaSaida);
+  const newEndMin = parseTime(horaRetorno);
+
+  if (newStartMin >= newEndMin) {
+    return { error: "O horário de saída deve ser anterior ao horário de retorno." };
+  }
+
+  // Validate Vehicle Availability with 1-hour (60 mins) buffer
+  // Exclude current request being edited to avoid self-collision!
+  const dayRequests = requests.filter(r => 
+    r.id !== requestId &&
+    r.dataSaida === dataSaida && 
+    r.status !== 'CANCELADO_USUARIO' && 
+    r.status !== 'NEGADO'
+  );
+  
+  for (const block of blocks) {
+    if (dataSaida >= block.dataInicio && dataSaida <= block.dataFim) {
+      if (block.veiculoId && !targetRequest.veiculosIds.includes(block.veiculoId)) {
+        continue;
+      }
+
+      let overlaps = false;
+      if (!block.horaInicio && !block.horaFim) {
+        overlaps = true;
+      } else {
+        const blockStartMin = block.horaInicio ? parseTime(block.horaInicio) : 0;
+        const blockEndMin = block.horaFim ? parseTime(block.horaFim) : 24 * 60;
+        overlaps = (newStartMin < blockEndMin) && (newEndMin > blockStartMin);
+      }
+
+      if (overlaps) {
+        const vname = block.veiculoId ? vehicles.find(v => v.id === block.veiculoId)?.name : 'Todos os veículos';
+        return { error: `Bloqueio da agenda detectado (${vname}): ${block.justificativa}` };
+      }
+    }
+  }
+
+  for (const vid of targetRequest.veiculosIds) {
+    for (const req of dayRequests) {
+      if (req.veiculosIds.includes(vid)) {
+        const reqStartMin = parseTime(req.horaSaida);
+        const reqEndMin = parseTime(req.horaRetorno);
+        
+        // Ranges: (newStartMin, newEndMin) check with 1-hour buffer. 
+        // newStartMin < reqEndMin + 60 && newEndMin + 60 > reqStartMin
+        const overlaps = (newStartMin < reqEndMin + 60) && (newEndMin + 60 > reqStartMin);
+        
+        if (overlaps) {
+           const vname = vehicles.find(v => v.id === vid)?.name;
+           return { error: `O veículo ${vname} já possui uma viagem entre ${req.horaSaida} e ${req.horaRetorno}, e requer 1 hora de intervalo mínimo.` };
+        }
+      }
+    }
+  }
+
+  try {
+    // Return to Admin Review ("SOLICITADO") after edit, clear motorists
+    await svcUpdateRequest(requestId, {
+      dataSaida,
+      horaSaida,
+      horaRetorno,
+      horarioNoLocal: targetRequest.vaiSairCampus ? (horarioNoLocal || undefined) : undefined,
+      status: 'SOLICITADO',
+      motoristasIds: []
+    });
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
 export async function cancelRequest(requestId: string) {
   const reqs = await svcGetRequests();
   const req = reqs.find(r => r.id === requestId);
