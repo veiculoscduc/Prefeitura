@@ -8,6 +8,8 @@ import { getStoreData } from '@/lib/actions';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Sistema de Agendamento de Veículos',
   description: 'Sistema institucional para requisição e gestão de frota',
