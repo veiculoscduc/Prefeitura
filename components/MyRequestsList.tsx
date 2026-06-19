@@ -84,7 +84,7 @@ export function MyRequestsList({ requests, users }: { requests: ScheduleRequest[
           statusText = "AGUARDANDO CONFIRMAÇÃO";
         }
 
-        const canEdit = req.status === 'SOLICITADO' || req.status === 'NEGADO';
+        const canEdit = req.status === 'SOLICITADO' || req.status === 'NEGADO' || req.status === 'CONFIRMADO';
 
         return (
           <div key={req.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
