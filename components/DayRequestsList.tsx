@@ -59,14 +59,18 @@ export function DayRequestsList({ requests, currentUser, users, vehicles }: { re
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60 flex-shrink-0 text-transparent" /> Condutor(es): {driverName}</div>
             </div>
 
-            {req.status === 'SOLICITADO' && (
+            {((req.status === 'SOLICITADO') || (req.status === 'CONFIRMADO' && isOwner)) && (
               <div className="flex space-x-2 mt-4 pt-3 border-t border-black/5">
                 {isOwner && (
-                  <button className="flex-1 bg-white border border-rose-200 text-rose-600 text-[10px] font-bold py-1.5 rounded hover:bg-rose-100 transition-colors" onClick={() => cancelRequest(req.id)}>
+                  <button className="flex-1 bg-white border border-rose-200 text-rose-600 text-[10px] font-bold py-1.5 rounded hover:bg-rose-100 transition-colors" onClick={() => {
+                    if (confirm("Deseja realmente cancelar esta solicitação?")) {
+                      cancelRequest(req.id);
+                    }
+                  }}>
                     CANCELAR
                   </button>
                 )}
-                {isAdmin && (
+                {isAdmin && req.status === 'SOLICITADO' && (
                   <>
                     <button className="flex-1 bg-white border border-rose-200 text-rose-600 text-[10px] font-bold py-1.5 rounded hover:bg-rose-100 transition-colors" onClick={() => {
                       adminReject(req.id, "Rejeitada pelo administrador");

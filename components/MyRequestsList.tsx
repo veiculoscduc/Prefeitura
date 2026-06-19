@@ -84,7 +84,7 @@ export function MyRequestsList({ requests, users }: { requests: ScheduleRequest[
           statusText = "AGUARDANDO CONFIRMAÇÃO";
         }
 
-        const canEdit = req.status === 'SOLICITADO' || req.status === 'NEGADO' || req.status === 'CONFIRMADO';
+        const canEdit = req.status === 'SOLICITADO' || req.status === 'NEGADO';
 
         return (
           <div key={req.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -151,10 +151,12 @@ export function MyRequestsList({ requests, users }: { requests: ScheduleRequest[
                   <Edit2 className="w-3.5 h-3.5" />
                   EDITAR HORÁRIO
                 </button>
-                {req.status === 'SOLICITADO' && (
+                {(req.status === 'SOLICITADO' || req.status === 'CONFIRMADO') && (
                   <button 
                     onClick={() => {
-                      cancelRequest(req.id);
+                      if (confirm("Deseja realmente cancelar esta solicitação?")) {
+                        cancelRequest(req.id);
+                      }
                     }}
                     className="bg-white border border-rose-200 text-rose-600 text-xs font-bold px-4 py-2 rounded hover:bg-rose-50 transition-colors cursor-pointer"
                   >
