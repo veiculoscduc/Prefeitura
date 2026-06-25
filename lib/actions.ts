@@ -250,7 +250,7 @@ export async function createRequest(data: Omit<ScheduleRequest, 'id' | 'status' 
   }
 
   // Validate Vehicle Availability with 1-hour (60 mins) buffer
-  const dayRequests = requests.filter(r => r.dataSaida === data.dataSaida && r.status !== 'CANCELADO_USUARIO' && r.status !== 'NEGADO');
+  const dayRequests = requests.filter(r => r.dataSaida === data.dataSaida && r.status !== 'CANCELADO_USUARIO' && r.status !== 'CANCELADO_PREFEITURA' && r.status !== 'NEGADO');
   
   for (const block of blocks) {
     if (data.dataSaida >= block.dataInicio && data.dataSaida <= block.dataFim) {
@@ -355,6 +355,7 @@ export async function updateRequestTime(
     r.id !== requestId &&
     r.dataSaida === dataSaida && 
     r.status !== 'CANCELADO_USUARIO' && 
+    r.status !== 'CANCELADO_PREFEITURA' && 
     r.status !== 'NEGADO'
   );
   
