@@ -12,5 +12,5 @@ export default async function Home() {
   }
 
   // Admin or Solicitante
-  return <RequesterAdminView initialRequests={requests} vehicles={vehicles} blocks={blocks} />;
+  return <RequesterAdminView initialRequests={requests} vehicles={vehicles} blocks={blocks} currentUser={currentUser} />;
 }
