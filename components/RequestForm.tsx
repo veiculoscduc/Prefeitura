@@ -30,6 +30,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
   const [nomePassageiro, setNomePassageiro] = React.useState('');
   const [enderecoSaida, setEnderecoSaida] = React.useState('');
   const [enderecoDestino, setEnderecoDestino] = React.useState('');
+  const [observacoes, setObservacoes] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +64,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
         enderecoDestino,
         quantidadePassageiros,
         horarioNoLocal: vaiSairCampus ? horarioNoLocal : undefined,
+        observacoes,
       });
 
       if (response && 'error' in response) {
@@ -134,7 +136,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
         <Select value={veiculo1} onChange={e => setVeiculo1(e.target.value)} required>
           <option value="" disabled>Selecionar veículo...</option>
           {vehicles.map(v => (
-            <option key={v.id} value={v.id}>{v.name} ({v.quantidadePassageiros || 4}) - {v.plate}</option>
+            <option key={v.id} value={v.id}>{v.name} (Capacidade: {v.quantidadePassageiros || 4})</option>
           ))}
         </Select>
       </div>
@@ -145,7 +147,7 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
           <Select value={veiculo2} onChange={e => setVeiculo2(e.target.value)} required>
              <option value="" disabled>Selecionar segundo veículo...</option>
              {vehicles.map((v) => (
-                <option key={v.id} value={v.id} disabled={v.id === veiculo1}>{v.name} ({v.quantidadePassageiros || 4}) - {v.plate}</option>
+                <option key={v.id} value={v.id} disabled={v.id === veiculo1}>{v.name} (Capacidade: {v.quantidadePassageiros || 4})</option>
              ))}
           </Select>
         </div>
@@ -204,6 +206,15 @@ export function RequestForm({ date, vehicles }: { date: string, vehicles: Vehicl
             value={enderecoDestino} 
             onChange={e => setEnderecoDestino(e.target.value)} 
             required
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label>Observações (Opcional)</Label>
+          <Input 
+            placeholder="Alguma observação importante para esta solicitação?" 
+            value={observacoes} 
+            onChange={e => setObservacoes(e.target.value)} 
           />
         </div>
       </div>

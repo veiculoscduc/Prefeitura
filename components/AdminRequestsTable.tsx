@@ -71,6 +71,11 @@ export function AdminRequestsTable({ requests, users, vehicles }: { requests: Sc
                 <td className="px-6 py-4">
                   <div className="text-sm font-semibold truncate max-w-[200px]" title={req.enderecoDestino}>{req.enderecoDestino}</div>
                   <div className="text-xs text-slate-500 mt-1 truncate max-w-[200px]" title={veiculosNomes}>{veiculosNomes}</div>
+                  {req.observacoes && (
+                    <div className="text-[10px] text-amber-700 bg-amber-50 px-2 py-1 mt-1 rounded border border-amber-200 truncate max-w-[200px]" title={req.observacoes}>
+                      Obs: {req.observacoes}
+                    </div>
+                  )}
                   {req.status === 'CONFIRMADO' && (
                      <div className="mt-2 space-y-1">
                         {req.motoristasIds?.map(mid => {

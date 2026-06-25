@@ -79,11 +79,16 @@ export function DriverMyRidesList({ requests, currentUser, vehicles, users }: { 
                   </h3>
                   <div className="text-sm space-y-1.5">
                     <p className="text-slate-700">
-                      <span className="font-bold text-slate-800">Veículo:</span> {reqVehicles.map(v => `${v.name} (${v.plate})`).join(', ') || 'Não definido'}
+                      <span className="font-bold text-slate-800">Veículo:</span> {reqVehicles.map(v => v.name).join(', ') || 'Não definido'}
                     </p>
                     <p className="text-slate-700">
                       <span className="font-bold text-slate-800">Local de Saída:</span> {localSaida}
                     </p>
+                    {req.observacoes && (
+                      <p className="text-amber-700 text-xs bg-amber-50 border border-amber-100 p-1.5 rounded mt-1">
+                        <span className="font-bold text-amber-800">Obs:</span> {req.observacoes}
+                      </p>
+                    )}
                     {req.vaiSairCampus && req.horarioNoLocal && (
                       <p className="flex items-center gap-1.5 text-xs text-indigo-850 bg-indigo-50/50 p-1 rounded border border-indigo-100 max-w-max">
                         <Clock className="w-3.5 h-3.5 text-indigo-600" />

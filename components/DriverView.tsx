@@ -72,11 +72,16 @@ export function DriverView({ requests, vehicles, users, currentUser }: { request
                 <div className="space-y-3 flex-1">
                   <div className="text-xs bg-slate-50 border border-slate-100 rounded-lg p-3 space-y-1.5">
                     <p className="text-slate-700">
-                      <span className="font-bold text-slate-800">Veículo(s):</span> {reqVehicles.map(v => `${v.name} (${v.plate})`).join(', ') || 'Não definido'}
+                      <span className="font-bold text-slate-800">Veículo(s):</span> {reqVehicles.map(v => v.name).join(', ') || 'Não definido'}
                     </p>
                     <p className="text-slate-700">
                       <span className="font-bold text-slate-800">Local de Saída:</span> {localSaida}
                     </p>
+                    {req.observacoes && (
+                      <p className="text-amber-700 text-xs bg-amber-50 border border-amber-100 p-1.5 rounded mt-1">
+                        <span className="font-bold text-amber-800">Obs:</span> {req.observacoes}
+                      </p>
+                    )}
                     {req.vaiSairCampus && req.horarioNoLocal && (
                       <p className="flex items-center gap-1.5 text-[11px] text-indigo-850 font-semibold bg-indigo-50 border border-indigo-100 p-1.5 rounded max-w-max">
                         <Clock className="w-3.5 h-3.5 text-indigo-600" />

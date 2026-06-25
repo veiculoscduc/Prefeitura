@@ -42,6 +42,7 @@ export interface ScheduleRequest {
   enderecoSaida?: string;
   enderecoDestino: string;
   horarioNoLocal?: string;
+  observacoes?: string;
   
   // Post-creation fields
   justificativaRejeicao?: string;

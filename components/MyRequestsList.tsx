@@ -110,6 +110,11 @@ export function MyRequestsList({ requests, users }: { requests: ScheduleRequest[
 
             <div className="bg-slate-50 rounded-lg p-3 text-sm border border-slate-100 mb-4 text-slate-600">
               <p><strong className="text-slate-800">Motorista(s):</strong> {driversAssigned}</p>
+              {req.observacoes && (
+                <p className="mt-2 text-amber-700 bg-amber-50 p-2 rounded border border-amber-100 text-xs">
+                  <strong className="text-amber-800">Observações:</strong> {req.observacoes}
+                </p>
+              )}
               {req.justificativaRejeicao && (
                 <p className="mt-2 text-rose-600">
                   <strong className="text-rose-700">Justificativa da Rejeição:</strong> {req.justificativaRejeicao}

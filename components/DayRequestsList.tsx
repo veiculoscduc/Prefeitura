@@ -57,6 +57,11 @@ export function DayRequestsList({ requests, currentUser, users, vehicles }: { re
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" /> Origem / Saída: {req.vaiSairCampus ? "Campus" : (req.enderecoSaida || '-')}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60" /> {req.veiculosIds.length} Veículo(s): {veiculosNomes || "?"}</div>
                <div className="flex items-center"><MapPin className="w-3 h-3 mr-1 opacity-60 flex-shrink-0 text-transparent" /> Condutor(es): {driverName}</div>
+               {req.observacoes && (
+                 <div className="flex items-start mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-[10px]">
+                   <span className="font-bold mr-1">Obs:</span> {req.observacoes}
+                 </div>
+               )}
             </div>
 
             {((req.status === 'SOLICITADO') || (req.status === 'CONFIRMADO' && isOwner)) && (
