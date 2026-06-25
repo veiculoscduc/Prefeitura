@@ -157,7 +157,7 @@ export function MaintenanceForm({ vehicles }: { vehicles: Vehicle[] }) {
               <option value="">Selecione o veículo...</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.name} ({v.plate})
+                  {v.name}
                 </option>
               ))}
             </select>
