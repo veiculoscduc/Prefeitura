@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.requests (
   km_retorno INTEGER,
   hora_saida_real TEXT,
   hora_retorno_real TEXT,
+  observacoes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -91,7 +92,15 @@ CREATE TABLE IF NOT EXISTS public.blocks (
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.vehicles DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.requests DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.blocks DISABLE ROW LEVEL SECURITY;`;
+ALTER TABLE public.blocks DISABLE ROW LEVEL SECURITY;
+
+-- 6. ATUALIZAÇÕES DE ESQUEMA PARA TABELAS EXISTENTES
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='requests' AND column_name='observacoes') THEN
+        ALTER TABLE public.requests ADD COLUMN observacoes TEXT;
+    END IF;
+END $$;`;
 
   const sqlSeedText = `-- CRIAÇÃO DO USUÁRIO ADMINISTRADOR PADRÃO (PREFEITURA)
 INSERT INTO public.users (id, name, email, role, password, status)

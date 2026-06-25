@@ -72,11 +72,12 @@ function mapRequestFromDb(row: any): ScheduleRequest {
     kmRetorno: row.km_retorno !== null ? row.km_retorno : row.kmRetorno,
     horaSaidaReal: row.hora_saida_real || row.horaSaidaReal,
     horaRetornoReal: row.hora_retorno_real || row.horaRetornoReal,
+    observacoes: row.observacoes || row.observacoes,
   };
 }
 
 function mapRequestToDb(req: ScheduleRequest): any {
-  return {
+  const obj: any = {
     id: req.id,
     solicitante_id: req.solicitanteId,
     status: req.status,
@@ -99,6 +100,12 @@ function mapRequestToDb(req: ScheduleRequest): any {
     hora_saida_real: req.horaSaidaReal || null,
     hora_retorno_real: req.horaRetornoReal || null,
   };
+  
+  if (req.observacoes) {
+    obj.observacoes = req.observacoes;
+  }
+  
+  return obj;
 }
 
 function mapBlockFromDb(row: any): AgendaBlock {
